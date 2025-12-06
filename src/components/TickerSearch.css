@@ -1,0 +1,69 @@
+.page-container {
+  height: 100dvh;
+  width: 100dvw;
+  overflow-x: hidden;
+    overflow-y: hidden;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.card-container {
+  width: 85vw;
+  max-width: 900px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+}
+
+.title {
+  font-size: 1.875rem;
+  font-weight: bold;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1.5rem;
+}
+
+.input-section { margin-bottom: 1.5rem; position: relative; }
+.input-label { font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: .5rem; display: block; }
+.input-wrapper { display: flex; gap: .5rem; }
+.input-area { flex: 1; position: relative; }
+.input-box {
+  width: 100%; padding: .5rem 1rem; border: 1px solid #d1d5db; border-radius: .5rem; font-size: 1rem;
+}
+
+.suggestions-box {
+  position: absolute; top: 110%; left: 0; width: 100%; background: white; border-radius: .5rem;
+  max-height: 15rem; overflow-y: auto; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+  z-index:1;
+}
+.suggestion-item { padding: .5rem 1rem; cursor: pointer; color: black; }
+.suggestion-item:hover { background: #eef2ff; }
+
+.add-button {
+  padding: .5rem 1rem; background: #6366f1; color: white; border-radius: .5rem; display: flex; align-items: center;
+  gap: .5rem; cursor: pointer; border: 0;
+}
+.add-button.disabled { background: #d1d5db; cursor: not-allowed; }
+
+.portfolio-title {
+  font-size: 1.125rem; font-weight: 600; color: #374151; margin-bottom: .75rem;
+}
+
+.portfolio-empty { text-align: center; padding: 2rem; color: #6b7280; }
+.empty-sub { font-size: 0.875rem; }
+
+.portfolio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .75rem; }
+
+.portfolio-item {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white; padding: 1rem; border-radius: .5rem;
+  display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.portfolio-ticker { font-weight: bold; font-size: 1.125rem; }
+.remove-btn { background: transparent; border: none; color: white; cursor: pointer; padding: .25rem; }

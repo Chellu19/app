@@ -6,12 +6,32 @@ import type { Ticker, PortfolioStock } from "../../types";
 import { useAppDispatch } from "../../store/hooks";
 import { setQuery, setQueryDisplay } from "../../store/ticker";
 import { Alert } from "@mui/material";
+import {
+  getPrices,
+  allReturns,
+  covarianceMatrix,
+  portfolioMetrics,
+} from "../../utils/util";
+import PortfolioMetricsCard from "../../components/PortfolioMetricsCard";
+
+interface WeightsMap {
+  [key: string]: number;
+}
+
+interface PortfolioInfo {
+  annualReturn: number;
+  annualVolatility: number;
+  sharpeRatio: number;
+}
 
 const Home: React.FC = () => {
   const [selectedTicker, setSelectedTicker] = useState<Ticker>();
   const [amountInput, setAmountInput] = useState<string>();
   const [portfolio, setPortfolio] = useState<PortfolioStock[]>([]);
   const [message, setMessage] = useState<string>("");
+
+  const [showPortfolio, setShowPortfolio] = useState<boolean>(false);
+  const [portfolioInfo, setPortfolioInfo] = useState<PortfolioInfo>();
 
   const dispatch = useAppDispatch();
 
@@ -44,10 +64,35 @@ const Home: React.FC = () => {
     dispatch(setQuery(""));
     dispatch(setQueryDisplay(""));
     setAmountInput("");
+    setShowPortfolio(false);
   };
 
   const removeFromPortfolio = (ticker: PortfolioStock) => {
     setPortfolio(portfolio.filter((t) => t !== ticker));
+    setShowPortfolio(false);
+  };
+
+  const onAnalyse = async () => {
+    const tickers = portfolio.map((s) => s.ticker);
+    const totalAmount = portfolio.reduce((a, b) => a + b.amount, 0);
+    const weights: WeightsMap = {};
+    for (const stock of portfolio) {
+      weights[stock.ticker.symbol] = stock.amount / totalAmount;
+    }
+    const priceHistory = await getPrices(tickers);
+
+    const priceHistoryWithReturns = allReturns(priceHistory);
+
+    const covar = covarianceMatrix(priceHistoryWithReturns);
+    const portfolioWeights = covar.tickers.map((ticker) => weights[ticker]);
+    const portfolioStats = portfolioMetrics(
+      portfolioWeights,
+      priceHistoryWithReturns,
+      covar.covMatrix
+    );
+    setPortfolioInfo(portfolioStats);
+    setShowPortfolio(true);
+    return portfolioStats;
   };
 
   return (
@@ -106,21 +151,38 @@ const Home: React.FC = () => {
             <p className="empty-sub">Start by adding some tickers above!</p>
           </div>
         ) : (
-          <div className="portfolio-grid">
-            {portfolio.map((ticker) => (
-              <div key={ticker.ticker.symbol} className="portfolio-item">
-                <span className="portfolio-ticker">
-                  {ticker.ticker.symbol} - ${ticker.amount}
-                </span>
-                <button
-                  onClick={() => removeFromPortfolio(ticker)}
-                  className="remove-btn"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-            ))}
+          <div>
+            <div className="portfolio-grid">
+              {portfolio.map((ticker) => (
+                <div key={ticker.ticker.symbol} className="portfolio-item">
+                  <span className="portfolio-ticker">
+                    {ticker.ticker.symbol} - ${ticker.amount}
+                  </span>
+                  <button
+                    onClick={() => removeFromPortfolio(ticker)}
+                    className="remove-btn"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <br />
+            <button
+              className="optimise-button"
+              onClick={() => onAnalyse().then((val) => console.log(val))}
+            >
+              Analyse
+            </button>
+            <br />
           </div>
+        )}
+        {showPortfolio && (
+          <PortfolioMetricsCard
+            sharpe={portfolioInfo?.sharpeRatio || 0}
+            volatility={portfolioInfo?.annualVolatility || 0}
+            annualReturn={portfolioInfo?.annualReturn || 0}
+          />
         )}
       </div>
     </div>
